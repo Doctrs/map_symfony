@@ -8,7 +8,6 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 class MapType extends AbstractType
 {
-    private $idTask;
     /**
      * @param FormBuilderInterface $builder
      * @param array $options
@@ -22,10 +21,6 @@ class MapType extends AbstractType
             ->add('y', null, ['label' => 'Квадратов по Y:'])
             ->add('maps', 'entity', ['label' => 'Для задания:', 'class' => 'AppMapBundle:Task', 'property_path' => 'maps'])
         ;
-    }
-
-    public function setTask($id){
-        $this->idTask = $id;
     }
 
     /**

@@ -224,13 +224,14 @@ class MapController extends Controller
         if (!$entities) {
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
+        $firstEnt = $entities[0];
 
         $array = array(
-            'id' => $entities[0]['id'],
-            'name'=> $entities[0]['name'],
-            'img' => $entities[0]['img'],
-            'x' => $entities[0]['x'],
-            'y' => $entities[0]['y'],
+            'id' => $firstEnt['id'],
+            'name'=> $firstEnt['name'],
+            'img' => $firstEnt['img'],
+            'x' => $firstEnt['x'],
+            'y' => $firstEnt['y'],
             'coords' => []
         );
         foreach($entities as $ent){
@@ -238,6 +239,8 @@ class MapController extends Controller
                 $array['coords'][] = $ent;
             }
         }
+        // рисуем на картинке сетку и координаты
+        $this->getImage($array);
 
         return $this->render('AppMapBundle:Map:view.html.twig', array(
             'entity' => $array,

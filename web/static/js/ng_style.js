@@ -1,3 +1,4 @@
+// директива для расчета размера картинки
 app.directive('styleImage', function(){
     return {
         restrict: 'A',

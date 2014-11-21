@@ -1,4 +1,5 @@
 var app = angular.module('app', []).config(function($interpolateProvider){
+    // с twig работает плохо, поэтмоу заменяем ангуляровские {{ на {[
     $interpolateProvider.startSymbol('{[').endSymbol(']}');
 });
 
@@ -6,7 +7,9 @@ app.controller('main', function ($scope) {
 
     $scope.coordinates = [];
 
+    // по клику добавляем новую координату
     $scope.click = function(event){
+        // если включен режим редактирования карты то нет
         if(editMap){
             return;
         }
@@ -24,6 +27,8 @@ app.controller('main', function ($scope) {
         y: 0
     };
 
+    // включение/отключение режима редактирования карты
+    // при отключении генерируется ссылка на статичное изображение
     var editMap = false;
     $scope.urlYaIm = '';
     $scope.mapEditText = 'Нажмите для начала ввода координат';
@@ -44,19 +49,26 @@ app.controller('main', function ($scope) {
         }
     }
 
+    // изменнеие размеров сетки и пересчет квадаратов координат
     $scope.change = function(){
+
+        // линии по х
         var array_x = [];
         pix.x = $scope.imw / $scope.sx;
         for(var i = 0 ; i < $scope.sx ; i++){
             array_x.push(pix.x * i);
         }
         $scope.array_x = array_x;
+
+        // линии по у
         var array_y = [];
         pix.y = $scope.imh / $scope.sy;
         for(var i = 0 ; i < $scope.sy ; i++){
             array_y.push(pix.y * i);
         }
         $scope.array_y = array_y;
+
+        // пересчет квадаратов координат
         if($scope.coordinates) {
             $scope.coordinates = $scope.coordinates.map(function (el) {
                 el.name = Math.floor(el.x / pix.x) + '/' + Math.floor(el.y / pix.y);

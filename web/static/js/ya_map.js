@@ -1,6 +1,7 @@
 
 var map = {
     'myMap': null,
+    // создаем карту
     'startMap': function(ymaps) {
         this.myMap = new ymaps.Map('myMap', {
             center: [55.76, 37.64],
@@ -10,6 +11,7 @@ var map = {
         });
         this.addControls();
     },
+    // добавляем элементы управление (отклчюение уставноки точек)
     'addControls': function(){
         this.myMap.controls
             .add('default')
@@ -18,6 +20,7 @@ var map = {
             .enable('drag')
             .enable('scrollZoom');
     },
+    // удалем элементы управления (включение возможности нанесения координат)
     'removeControls': function(){
         this.myMap.controls
             .remove('default')
@@ -26,6 +29,7 @@ var map = {
             .disable('drag')
             .disable('scrollZoom');
     },
+    // параметр тип карты
     cartTypes: {
         'yandex#map': 'map',
         'yandex#satellite': 'sat',
@@ -33,6 +37,7 @@ var map = {
         'yandex#publicMap': 'pmap',
         'yandex#publicMapHybrid': 'pskl'
     },
+    // получение параметров для получения картинки
     getParams: function(){
         return {
             'll': this.myMap.getCenter().reverse().join(','),
@@ -42,6 +47,7 @@ var map = {
     }
 }
 
+// обертка для автозапуска
 function startMap(ymaps){
     map.startMap(ymaps);
 }
