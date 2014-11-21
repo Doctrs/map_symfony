@@ -257,7 +257,7 @@ class MapController extends Controller
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
         // Если пользователь не загружал свою картинку то скачиваем Я.Карту
-        if(isset($request['yandex_image'])){
+        if(isset($request['yandex_image']) && $request['yandex_image']){
             $imgName = (new \DateTime())->getTimestamp();
             $entity->setImg($imgName);
             file_put_contents('uploads/maps/' . $imgName, file_get_contents($request['yandex_image']));
@@ -266,6 +266,13 @@ class MapController extends Controller
         // Если в процессе были изменены размеры сетки то обновялем
         $entity->setX($request['x']);
         $entity->setY($request['y']);
+        if(!$entity->getImg()){
+            $entity = $em->getRepository('AppMapBundle:Map')->find($id);
+            return $this->render('AppMapBundle:Map:showMap.html.twig', array(
+                'entity' => $entity,
+                'error' => 'Необходимо получить изображение'
+            ));
+        }
         $em->persist($entity);
 
         // Проходимся по полученному списку координат
@@ -298,7 +305,8 @@ class MapController extends Controller
         $templateName = ($type == 'map' ? 'showMap.html.twig' : 'show.html.twig');
 
         return $this->render('AppMapBundle:Map:' . $templateName, array(
-            'entity'      => $entity,
+            'entity' => $entity,
+            'error' => false
         ));
     }
 
@@ -316,8 +324,14 @@ class MapController extends Controller
         }
 
         // Удаляем карту и отредактированную карту для обьекта
-        unlink('uploads/maps/' . $entity->getImg());
-        unlink('uploads/maps/' . $entity->getImg() . '_edit');
+        if($entity->getImg()) {
+            if (file_exists('uploads/maps/' . $entity->getImg())) {
+                unlink('uploads/maps/' . $entity->getImg());
+            }
+            if (file_exists('uploads/maps/' . $entity->getImg() . '_edit')) {
+                unlink('uploads/maps/' . $entity->getImg() . '_edit');
+            }
+        }
 
         $em->remove($entity);
         $em->flush();

@@ -122,8 +122,15 @@ class TaskController extends Controller
         // Удаляем все картинки обьектов котоыре были связанны
         $entityMap = $em->getRepository('AppMapBundle:Map')->findby(array('maps' => $id));
         foreach($entityMap as $item){
-            unlink('uploads/maps/' . $item->getImg());
-            unlink('uploads/maps/' . $item->getImg() . '_edit');
+            if(!$item->getImg()){
+                continue;
+            }
+            if(file_exists('uploads/maps/' . $item->getImg())) {
+                unlink('uploads/maps/' . $item->getImg());
+            }
+            if(file_exists('uploads/maps/' . $item->getImg() . '_edit')) {
+                unlink('uploads/maps/' . $item->getImg() . '_edit');
+            }
         }
 
         $em->remove($entity);

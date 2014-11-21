@@ -18,6 +18,12 @@
     <form method="post" action="{{ path('app_map_save', {'id': entity.id}) }}">
         <table class="record_properties">
             <tbody>
+            {% if(error) %}
+            <tr>
+                <th style="color:red">Ошибка:</th>
+                <td style="color:red">{{ error }}</td>
+            </tr>
+            {% endif %}
                 <tr>
                     <th>Название:</th>
                     <td>{{ entity.name }}</td>
@@ -69,7 +75,7 @@
             </tbody>
         </table>
         <input type="hidden" name="yandex_image" value="{[urlYaIm]}" />
-        <input type="submit" class="btn btn-success" value="Сохранить"/>
+        <input ng-show="urlYaIm" type="submit" class="btn btn-success" value="Сохранить"/>
         </form>
 </div>
 
