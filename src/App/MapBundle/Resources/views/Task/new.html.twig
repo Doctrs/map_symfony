@@ -1,0 +1,12 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <link rel="stylesheet" href="{{ asset('static/css/task_new.css') }}" type="text/css" media="all">
+    <h3>Создание нового задания</h3>
+
+    {{ form(form) }}
+
+    <a class="btn btn-danger" href="{{ path('app_task') }}">
+        Вернуться к списку
+    </a>
+{% endblock %}

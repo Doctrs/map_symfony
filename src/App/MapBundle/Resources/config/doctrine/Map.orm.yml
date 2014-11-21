@@ -1,0 +1,34 @@
+App\MapBundle\Entity\Map:
+    type: entity
+    repositoryClass: App\MapBundle\Repository\MapRepository
+    table: map
+    id:
+        id:
+            type: integer
+            generator: { strategy: AUTO }
+    fields:
+        name:
+            type: string
+            length: 255
+        img:
+            type: text
+            nullable: true
+        x:
+            type: smallint
+            length: 2
+        y:
+            type: smallint
+            length: 2
+    oneToMany:
+        coords_m:
+            targetEntity: Coordinates
+            mappedBy: coords
+    manyToOne:
+        maps:
+            type: integer
+            targetEntity: Task
+            inversedBy: tasks
+            joinColumn:
+                name: task_id
+                referencedColumnName: id
+                onDelete: CASCADE

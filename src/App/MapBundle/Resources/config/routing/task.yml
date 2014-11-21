@@ -1,0 +1,15 @@
+app_task:
+    path:     /
+    defaults: { _controller: "AppMapBundle:Task:index" }
+
+app_task_new:
+    path:     /new
+    defaults: { _controller: "AppMapBundle:Task:new" }
+
+app_task_create:
+    path:     /create
+    defaults: { _controller: "AppMapBundle:Task:create" }
+
+app_task_delete:
+    path:     /{id}/delete
+    defaults: { _controller: "AppMapBundle:Task:delete" }

@@ -1,0 +1,10 @@
+
+#app_mapbundle_map label{
+    width:200px;
+    text-align:right;
+    padding-right: 10px;
+}
+
+#app_mapbundle_map input[type="file"]{
+    display: inline-block;
+}

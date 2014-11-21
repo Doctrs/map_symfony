@@ -1,0 +1,41 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <h3>Список заданий</h3>
+
+    <a href="{{ path('app_task_new') }}">
+        Создать новое задание
+    </a>
+    <table class="records_list">
+        <thead>
+            <tr>
+                <th>Название</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entity in entities %}
+            <tr>
+                <td>{{ entity.name }}</td>
+                <td>
+                    <a class="btn btn-success" href="{{ path('app_map_new', {'id' : entity.id}) }}" >+ Создать</a>
+                    <a onclick="if(!confirm('Вы уверены?'))return false;"
+                       class="btn btn-danger" href="{{ path('app_task_delete', {'id' : entity.id}) }}" >Удалить</a>
+                </td>
+            </tr>
+
+            {% for maps in entity.entities %}
+                <tr>
+                    <td></td>
+                    <td>{{ maps.name }}</td>
+                    <td>
+                        <a class="btn" href="{{ path('app_map_view', {'id' : maps.id}) }}" >Просмотр</a>
+                        <a onclick="if(!confirm('Вы уверены?'))return false;"
+                           class="btn btn-danger" href="{{ path('app_map_delete', {'id' : maps.id}) }}" >Удалить</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% endblock %}

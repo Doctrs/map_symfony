@@ -1,0 +1,7 @@
+AppTaskBundle:
+    resource: "@AppMapBundle/Resources/config/routing/map.yml"
+    prefix:   /app_map
+
+AppMapBundle:
+    resource: "@AppMapBundle/Resources/config/routing/task.yml"
+    prefix:   /

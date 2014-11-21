@@ -1,0 +1,4 @@
+App\MapBundle\Entity\Map:
+    properties:
+        file:
+            - Image: ~

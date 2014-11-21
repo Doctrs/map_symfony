@@ -1,0 +1,38 @@
+{% extends '::base.html.twig' %}
+
+{% block body -%}
+    <link rel="stylesheet" href="{{ asset('static/css/main.css') }}" type="text/css" media="all">
+    <link rel="stylesheet" href="{{ asset('static/css/map_edit.css') }}" type="text/css" media="all">
+        <h3>Просмотр карты</h3>
+            <table class="record_properties">
+                <tbody>
+                <tr>
+                    <th>Название:</th>
+                    <td>{{ entity.name }}</td>
+                </tr>
+                <tr>
+                    <th>Карта:</th>
+                    <td>
+                        <div id="main_el">
+                            <img src="/uploads/maps/{{ entity.img }}_edit" />
+                        </div>
+                        <table class="tab_coords">
+                            <tr><td>Номер</td><td>Координаты</td><td>Квадрат</td></tr>
+                            {% for coords in entity.coords %}
+                            <tr>
+                                <td>Точка {{ loop.index + 1 }}</td>
+                                <td>x: {{ coords.c_x }}, y: {{ coords.c_y }}</td>
+                                <td>{{ coords.c_name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+    <a target="_blank" href="{{ path('app_map_save_map', {'id': entity.id}) }}" class="btn btn-success">Скачать изображение карты</a>
+    <a target="_blank" href="{{ path('app_map_save_coords', {'id': entity.id}) }}" class="btn btn-success">Скачать список координат</a>
+    <br />
+    <a href="{{ path('app_task') }}" class="btn btn-danger">Вернуться к списку</a>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+<?php
+
+namespace App\MapBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * Coordinates
+ */
+class Coordinates
+{
+    /**
+     * @var integer
+     */
+    private $id;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var \App\MapBundle\Entity\Map
+     */
+    private $maps;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Coordinates
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set maps
+     *
+     * @param \App\MapBundle\Entity\Map $maps
+     * @return Coordinates
+     */
+    public function setMaps(\App\MapBundle\Entity\Map $maps = null)
+    {
+        $this->maps = $maps;
+
+        return $this;
+    }
+
+    /**
+     * Get maps
+     *
+     * @return \App\MapBundle\Entity\Map 
+     */
+    public function getMaps()
+    {
+        return $this->maps;
+    }
+    /**
+     * @var integer
+     */
+    private $x;
+
+    /**
+     * @var integer
+     */
+    private $y;
+
+
+    /**
+     * Set x
+     *
+     * @param integer $x
+     * @return Coordinates
+     */
+    public function setX($x)
+    {
+        $this->x = $x;
+
+        return $this;
+    }
+
+    /**
+     * Get x
+     *
+     * @return integer 
+     */
+    public function getX()
+    {
+        return $this->x;
+    }
+
+    /**
+     * Set y
+     *
+     * @param integer $y
+     * @return Coordinates
+     */
+    public function setY($y)
+    {
+        $this->y = $y;
+
+        return $this;
+    }
+
+    /**
+     * Get y
+     *
+     * @return integer 
+     */
+    public function getY()
+    {
+        return $this->y;
+    }
+
+    public function __toString(){
+        return $this->name ? $this->name : '';
+    }
+}

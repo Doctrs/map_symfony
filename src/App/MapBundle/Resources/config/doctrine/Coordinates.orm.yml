@@ -1,0 +1,26 @@
+App\MapBundle\Entity\Coordinates:
+    type: entity
+    repositoryClass: App\MapBundle\Repository\CoordinatesRepository
+    table: coordinates
+    id:
+        id:
+            type: integer
+            generator: { strategy: AUTO }
+    fields:
+        name:
+            type: string
+            length: 255
+        x:
+            type: smallint
+            length: 4
+        y:
+            type: smallint
+            length: 4
+    manyToOne:
+        coords:
+            targetEntity: Map
+            inversedBy: coords_m
+            joinColumn:
+                name: map_id
+                referencedColumnName: id
+                onDelete: CASCADE
