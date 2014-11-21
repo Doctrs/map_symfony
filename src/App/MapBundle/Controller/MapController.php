@@ -184,7 +184,9 @@ class MapController extends Controller
         for($i = 0; $i < $x ;$i++){
             $varX = $pixX * $i;
             // Обрамление цифры (для темных карт)
-            imagefilledellipse($img, $varX + 12, 10, 20, 20, $color['white']);
+            if($color['white']){
+                imagefilledellipse($img, $varX + 12, 10, 20, 20, $color['white']);
+            }
             // Цифра
             imagestring($img, 2, $varX + 7, 5, $i, $color['black']);
             // линия
@@ -192,7 +194,9 @@ class MapController extends Controller
         }
         for($i = 0; $i < $y ;$i++){
             $varY = $pixY * $i;
-            imagefilledellipse($img, 10, $varY + 12, 20, 20, $color['white']);
+            if($color['white']) {
+                imagefilledellipse($img, 10, $varY + 12, 20, 20, $color['white']);
+            }
             imagestring($img, 2, 5, $varY + 7, $i, $color['black']);
             imageline($img, 0, $varY, $x, $varY, $color['black']);
         }
@@ -202,7 +206,6 @@ class MapController extends Controller
         }
 
         $saveFunctionImg($img, 'uploads/maps/'.$array['img'].'_edit');
-        return $color;
     }
 
     public function viewAction($id)
@@ -235,7 +238,6 @@ class MapController extends Controller
                 $array['coords'][] = $ent;
             }
         }
-        $this->getImage($array);
 
         return $this->render('AppMapBundle:Map:view.html.twig', array(
             'entity' => $array,

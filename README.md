@@ -1,7 +1,12 @@
 Инструкция по установке
 ========================
+Папка для проекта в примере
+
+    /var/www/maps/
+
 клонируем из репозитория и обновляем composer
 
+    cd /var/www/maps/
     git clone https://github.com/FaustVlll/map_symfony.git .
     composer update
     
