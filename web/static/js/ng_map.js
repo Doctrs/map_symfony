@@ -7,6 +7,10 @@ app.controller('main', function ($scope) {
 
     $scope.coordinates = [];
 
+    $scope.checkCoords = function(){
+        return false;
+    }
+
     // по клику добавляем новую координату
     $scope.click = function(event){
         // если включен режим редактирования карты то нет
@@ -36,7 +40,9 @@ app.controller('main', function ($scope) {
         editMap = !editMap;
         if(editMap){
             $scope.mapEditText = 'Нажмите для начала ввода координат';
-            map.addControls();
+            if(map.myMap) {
+                map.addControls();
+            }
         } else {
             var url = [];
             var params = map.getParams();
@@ -45,7 +51,9 @@ app.controller('main', function ($scope) {
             }
             $scope.urlYaIm = 'http://static-maps.yandex.ru/1.x/?size=600,400&' + url.join('&');
             $scope.mapEditText = 'Нажмите для выбора места на карте';
-            map.removeControls();
+            if(map.myMap) {
+                map.removeControls();
+            }
         }
     }
 

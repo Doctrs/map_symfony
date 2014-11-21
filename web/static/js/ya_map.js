@@ -6,10 +6,9 @@ var map = {
         this.myMap = new ymaps.Map('myMap', {
             center: [55.76, 37.64],
             zoom: 7,
-            controls: [],
+            controls: ['default', 'routeEditor'],
             behaviors: ['drag', 'scrollZoom']
         });
-        this.addControls();
     },
     // добавляем элементы управление (отклчюение уставноки точек)
     'addControls': function(){
