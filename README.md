@@ -70,7 +70,13 @@
 
     php app/console cache:clear --env=dev && app/console cache:clear --env=prod
     
-Все готово.
+Добавляем в hosts строчку 
+
+    127.0.0.1       maps.local
+    
+Все готово - по адресу http://maps.local у нас есть рабочее приложение<br>
+debug находится здесь - http://maps.local/app_dev.php
+
 И напоследок - конфиг апача
 
     <VirtualHost *:80>
