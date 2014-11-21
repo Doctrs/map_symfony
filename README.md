@@ -8,6 +8,9 @@
     <li>
         <a href="#install">Инструкция по установке</a>
     </li>
+    <li>
+        <a href="#create">Реализация</a>
+    </li>
 </ul>
 
 <h1 id="descr">Краткое описание</h1>
@@ -74,8 +77,8 @@
 
     127.0.0.1       maps.local
     
-Все готово - по адресу http://maps.local у нас есть рабочее приложение<br>
-debug находится здесь - http://maps.local/app_dev.php
+Все готово - по адресу <a href="http://maps.local" target="_blank">maps.local</a> у нас есть рабочее приложение<br>
+debug находится здесь - <a href="http://maps.local/app_dev.php" target="_blank">maps.local/app_dev.php</a>
 
 И напоследок - конфиг апача
 
@@ -93,4 +96,21 @@ debug находится здесь - http://maps.local/app_dev.php
         </Directory>
     </VirtualHost>
 
-
+<h1 id="create">Реализация</h1>
+<ul>
+    <li>
+        <a href="http://symfony.com/" target="_blank">Symfony 2.5</a> - backend
+    </li>
+    <li>
+        <a href="http://www.mysql.com/" target="_blank">MySQL 5.5.40</a> - database
+    </li>
+    <li>
+        <a href="https://angularjs.org/" target="_blank">AngularJS 1.3.3</a> - frontend
+    </li>
+    <li>
+        <a href="http://getbootstrap.com/" target="_blank">Bootstrap 3.3.1</a> - styles
+    </li>
+    <li>
+        <a href="http://libgd.bitbucket.org/" target="_blank">PHP Gd</a> - draw images
+    </li>
+</ul>
