@@ -7,16 +7,12 @@
         Создать новое задание
     </a>
     <table class="records_list">
-        <thead>
-            <tr>
-                <th>Название</th>
-            </tr>
-        </thead>
         <tbody>
         {% for entity in entities %}
             <tr>
                 <td>{{ entity.name }}</td>
                 <td>
+                    <a class="btn btn-success" href="{{ path('app_map_view', {'id' : entity.id}) }}" >Просмотр</a>
                     <a onclick="if(!confirm('Вы уверены?'))return false;"
                        class="btn btn-danger" href="{{ path('app_map_delete', {'id' : entity.id}) }}" >Удалить</a>
                 </td>

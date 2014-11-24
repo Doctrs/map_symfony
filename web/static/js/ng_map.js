@@ -5,85 +5,63 @@ var app = angular.module('app', []).config(function($interpolateProvider){
 
 app.controller('main', function ($scope) {
 
+    $scope.rad = RADIUS;
+    $scope.sx = GRID.x;
+    $scope.sy = GRID.y;
+
     $scope.coordinates = [];
-
-    $scope.checkCoords = function(){
-        return false;
-    }
-
-    // по клику добавляем новую координату
-    $scope.click = function(event){
-        // если включен режим редактирования карты то нет
-        if(editMap){
-            return;
-        }
-        var coord = getCoords(event);
-        coord.name = Math.floor(coord.x / pix.x) + '/' + Math.floor(coord.y / pix.y)
-        $scope.coordinates.push(coord)
-    }
-
-    $scope.delete = function(id){
-        $scope.coordinates.splice(id,1);
-    }
-
-    var pix = {
-        x: 0,
-        y: 0
+    $scope.setCoords = function(coords){
+        $scope.coordinates = coords.map(function(el){
+            el.coords[0] = Math.round(el.coords[0]);
+            el.coords[1] = Math.round(el.coords[1]);
+            return el;
+        });
+        $scope.coordGetName();
     };
 
-    // включение/отключение режима редактирования карты
-    // при отключении генерируется ссылка на статичное изображение
-    var editMap = false;
-    $scope.urlYaIm = '';
-    $scope.mapEditText = 'Нажмите для начала ввода координат';
-    $scope.toogleMap = function(){
-        editMap = !editMap;
-        if(editMap){
-            $scope.mapEditText = 'Нажмите для начала ввода координат';
-            if(map.myMap) {
-                map.addControls();
-            }
-        } else {
-            var url = [];
-            var params = map.getParams();
-            for(var i in params){
-                url.push(i + '=' + params[i]);
-            }
-            $scope.urlYaIm = 'http://static-maps.yandex.ru/1.x/?size=600,400&' + url.join('&');
-            $scope.mapEditText = 'Нажмите для выбора места на карте';
-            if(map.myMap) {
-                map.removeControls();
-            }
-        }
+    $scope.coordGetName = function(){
+        var pix = {
+            x: SIZE.x / $scope.sx,
+            y: SIZE.y / $scope.sy
+        };
+        $scope.coordinates = $scope.coordinates.map(function (el) {
+            el.name =
+                String.fromCharCode(Math.floor(el.coords[0] / pix.x) + 65) +
+                Math.floor(el.coords[1] / pix.y);
+            return el;
+        })
     }
+
+    // выделение цветом КП
+    $scope.alocate = function(index, onoff){
+        map.allocationPlaceMark(index, onoff);
+    }
+
+    $scope.delete = function(key){
+        $scope.coordinates.splice(key, 1);
+        map.removePlaceMark(key);
+    };
+
+    // меняем радиус и обновляем радиусы всех КП
+    $scope.changeRadius = function(){
+        if($scope.rad) {
+            map.radius.main = $scope.rad;
+            map.updateRadius();
+        }
+    };
 
     // изменнеие размеров сетки и пересчет квадаратов координат
     $scope.change = function(){
-
-        // линии по х
-        var array_x = [];
-        pix.x = $scope.imw / $scope.sx;
-        for(var i = 0 ; i < $scope.sx ; i++){
-            array_x.push(pix.x * i);
-        }
-        $scope.array_x = array_x;
-
-        // линии по у
-        var array_y = [];
-        pix.y = $scope.imh / $scope.sy;
-        for(var i = 0 ; i < $scope.sy ; i++){
-            array_y.push(pix.y * i);
-        }
-        $scope.array_y = array_y;
-
-        // пересчет квадаратов координат
+        map.grid = [
+            $scope.sx,
+            $scope.sy
+        ];
+        map.updateLayers();
         if($scope.coordinates) {
-            $scope.coordinates = $scope.coordinates.map(function (el) {
-                el.name = Math.floor(el.x / pix.x) + '/' + Math.floor(el.y / pix.y);
-                return el;
-            })
+            $scope.coordGetName();
         }
-    }
+    };
+    $scope.change();
 
 
 
@@ -141,13 +119,44 @@ app.controller('main', function ($scope) {
     }
 
 
+    // Наблюдение и проверки
+    $scope.$watch('rad', function(oldv, newv) {
+        if(newv < 10){
+            $scope.rad = 10;
+            return;
+        }
+        if(newv > 100){
+            $scope.rad = 100;
+            return;
+        }
+        if(oldv == newv){
+            return;
+        }
+        $scope.changeRadius();
+    });
     $scope.$watch('sx', function(oldv, newv) {
+        if(newv < 2){
+            $scope.sx = 2;
+            return;
+        }
+        if(newv > 20){
+            $scope.sx = 20;
+            return;
+        }
         if(oldv == newv){
             return;
         }
         $scope.change();
     });
     $scope.$watch('sy', function(oldv, newv) {
+        if(newv < 2){
+            $scope.sy = 2;
+            return;
+        }
+        if(newv > 20){
+            $scope.sy = 20;
+            return;
+        }
         if(oldv == newv){
             return;
         }

@@ -2,6 +2,12 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
 
+services:
+    image_controller:
+        class: App\MapBundle\Controller\ImageController
+        arguments:
+            container: "@service_container"
+
 framework:
     #esi:             ~
     #translator:      { fallback: "%locale%" }

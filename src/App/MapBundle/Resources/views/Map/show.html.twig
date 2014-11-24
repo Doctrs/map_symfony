@@ -1,9 +1,6 @@
 {% extends '::base.html.twig' %}
 
 {% block body -%}
-    <script src="{{ asset('https://code.angularjs.org/1.3.3/angular.min.js') }}"></script>
-    <script src="{{ asset('/static/js/ng_map.js') }}"></script>
-    <script src="{{ asset('/static/js/ng_style.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('static/css/main.css') }}" type="text/css" media="all">
     <link rel="stylesheet" href="{{ asset('static/css/map_edit.css') }}" type="text/css" media="all">
 <div ng-app="app" ng-controller="main">
@@ -19,20 +16,6 @@
                 <th>Карта:</th>
                 <td>
                     <div id="main_el" ng-click="click($event)" >
-                        <div ng-repeat="coord_y in array_y track by $index"
-                             style="margin-top: {[coord_y]}px" class="display_x">
-                            <div ng-bind="$index"></div>
-                        </div>
-                        <div ng-repeat="coord_x in array_x track by $index"
-                             style="margin-left: {[coord_x]}px" class="display_y">
-                            <div ng-bind="$index"></div>
-                        </div>
-
-                        <div ng-repeat="coord in coordinates track by $index" style="margin-top:{[coord.y-5]}px;margin-left:{[coord.x-5]}px;" class="coordinate">
-                            <input type="hidden" name="coordx[{[$index]}]" value="{[coord.x]}" />
-                            <input type="hidden" name="coordy[{[$index]}]" value="{[coord.y]}" />
-                            <input type="hidden" name="coordname[{[$index]}]" value="{[coord.name]}" />
-                        </div>
                         <img style="border: 1px solid black;" style-image ng-src="/uploads/maps/{{ entity.img }}" />
                     </div>
                     <table class="tab_coords">

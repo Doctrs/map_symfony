@@ -7,6 +7,10 @@
     background-color: black;
     z-index:1
 }
+#myMap{
+    width:600px;
+    height: 400px;
+}
 a{
     cursor:pointer;
 }

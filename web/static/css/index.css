@@ -8,3 +8,16 @@ body{
 footer{
     height: 100px;
 }
+
+.records_list{
+    width:50%
+}
+.records_list tr td{
+    padding: 0 10px;
+}
+.records_list tr td:last-child{
+    text-align:right;
+}
+.records_list tr:hover td{
+    background-color: rgba(0, 0, 255, 0.17);
+}

@@ -15,29 +15,14 @@ use Symfony\Component\HttpFoundation\Request;
 class MapController extends Controller
 {
     /**
-     * Типы изображений и функции для работы с ними
-     */
-    private $validArrayType = array(
-        'image/gif' => array(
-            'create' => 'imagecreatefromgif',
-            'save' => 'imagepng'
-        ),
-        'image/jpeg' => array(
-            'create' => 'imagecreatefromjpeg',
-            'save' => 'imagejpeg'
-        ),
-        'image/png' => array(
-            'create' => 'imagecreatefrompng',
-            'save' => 'imagepng'
-        ),
-    );
-
-    /**
      * Creates a new Map entity.
      *
      */
 
     public function indexAction(){
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', '');
+
         $em = $this->getDoctrine()->getManager();
         $entities = $em->getRepository('AppMapBundle:Map')->findAll();
 
@@ -52,8 +37,9 @@ class MapController extends Controller
     {
         $entity = new Map();
         $em = $this->getDoctrine()->getManager();
-        $entity->setX(0);
-        $entity->setY(0);
+        // Задаем занчения по умолчанию
+        $entity->setX(2);
+        $entity->setY(2);
         $entity->setRadius(10);
 
         $form = $this->createCreateForm($entity);
@@ -65,7 +51,8 @@ class MapController extends Controller
         $imgName = (new \DateTime())->getTimestamp();
         $entity->getImg()->move('uploads/maps', $imgName);
         // Если картинка не соответсвует валидному типу то ошибка
-        if (!isset($this->validArrayType[mime_content_type('uploads/maps/' . $imgName)])) {
+        $validTypes = $this->get('image_controller')->getValidTypes();
+        if (!isset($validTypes[mime_content_type('uploads/maps/' . $imgName)])) {
             $form->get('img')->addError(new \Symfony\Component\Form\FormError('Необходимо изображение'));
             return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
         }
@@ -74,7 +61,9 @@ class MapController extends Controller
         $em->flush();
 
         return $this->redirect($this->generateUrl('app_map_show',
-            array('id' => $entity->getId())
+            array(
+                'id' => $entity->getId()
+            )
         ));
     }
 
@@ -96,66 +85,16 @@ class MapController extends Controller
 
         return $form;
     }
-
-    public function saveMapAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $entity = $em->getRepository('AppMapBundle:Map')->find($id);
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Map entity.');
-        }
-        // Отдаем отредактированную картинку (_edit)
-        $filename = 'uploads/maps/' . $entity->getImg() . '_edit';
-
-        $response = new \Symfony\Component\HttpFoundation\Response();
-        $response->headers->set('Cache-Control', 'private');
-        $response->headers->set('Content-type', mime_content_type($filename));
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($entity->getImg()) . '";');
-        $response->headers->set('Content-length', filesize($filename));
-        $response->sendHeaders();
-
-        $response->setContent(readfile($filename));
-        return $response;
-    }
-
-    public function saveCoordAction($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $entity = $em->getRepository('AppMapBundle:Coordinates')->findBy(array('coords' => $id));
-
-        if (!$entity) {
-            throw $this->createNotFoundException('Unable to find Map entity.');
-        }
-        // Генерация строки с координатами для загрузки из браузера
-        $text = "Название\tКоординаты\tКвадрат\n__________________________________\n\n";
-        foreach ($entity as $key => $r) {
-            $text .= 'Точка ' . $key . "\t\t" . "x:" . $r->getX() . " y:" . $r->getY() . "\t" . $r->getName() . "\n";
-        }
-
-
-        $filename = $text;
-
-        // заголовки загрузки файла
-        $response = new \Symfony\Component\HttpFoundation\Response();
-        $response->headers->set('Cache-Control', 'private');
-        $response->headers->set('Content-type', 'text');
-        $response->headers->set('Content-Disposition', 'attachment; filename="Координаты.txt";');
-        $response->headers->set('Content-length', strlen($filename));
-        $response->sendHeaders();
-
-        $response->setContent($filename);
-        return $response;
-    }
-
     /**
      * Displays a form to create a new Map entity.
      *
      */
     public function newAction()
     {
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
+        $breadcrumbs->addItem('Новое задание', '');
         $entity = new Map();
-        $em = $this->getDoctrine()->getManager();
         $form = $this->createCreateForm($entity);
 
         return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
@@ -164,71 +103,42 @@ class MapController extends Controller
     public function viewAction($id)
     {
         $em = $this->getDoctrine()->getManager();
-        $entities = $em->createQueryBuilder()->select('rg.id, rg.name, rg.img, rg.x, rg.y, r.name as c_name, r.x as c_x, r.y as c_y')->from('AppMapBundle:Map', 'rg')->leftJoin('rg.coords_m', 'r')->where('rg.id = :id')->setParameter('id', $id);
-        $entities = $entities->getQuery()->getResult();
+        $entities = $em->createQueryBuilder()
+            ->select('rg.id, rg.radius, rg.name, rg.img, rg.x, rg.y, r.name as c_name, r.x as c_x, r.y as c_y')
+            ->from('AppMapBundle:Map', 'rg')
+            ->leftJoin('rg.coords_m', 'r')
+            ->where('rg.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
 
         if (!$entities) {
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
         $firstEnt = $entities[0];
 
-        $array = array('id' => $firstEnt['id'], 'name' => $firstEnt['name'], 'img' => $firstEnt['img'], 'x' => $firstEnt['x'], 'y' => $firstEnt['y'], 'coords' => []);
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
+        $breadcrumbs->addItem($firstEnt['name'], '');
+
+        $array = array(
+            'id' => $firstEnt['id'],
+            'name' => $firstEnt['name'],
+            'img' => $firstEnt['img'],
+            'x' => $firstEnt['x'],
+            'y' => $firstEnt['y'],
+            'radius' => $firstEnt['radius'],
+            'coords' => []
+        );
         foreach ($entities as $ent) {
             if ($ent['c_name']) {
                 $array['coords'][] = $ent;
             }
         }
         // рисуем на картинке сетку и координаты
-        $this->getImage($array);
+        $this->get('image_controller')->getImage($array);
 
         return $this->render('AppMapBundle:Map:view.html.twig', array('entity' => $array,));
-    }
-
-    private function getImage($array)
-    {
-        list($x, $y) = getimagesize('uploads/maps/' . $array['img']);
-
-        // определение расстояния между линиями
-        $pixX = $x / $array['x'];
-        $pixY = $y / $array['y'];
-
-        // определение типа изображения и создание нового
-        $type = mime_content_type('uploads/maps/' . $array['img']);
-        $createFunctionImg = $this->validArrayType[$type]['create'];
-        $saveFunctionImg = $this->validArrayType[$type]['save'];
-        $img = $createFunctionImg('uploads/maps/' . $array['img']);
-
-        $color = array(
-            'red' => imagecolorallocate($img, 255, 0, 0),
-            'white' => imagecolorallocate($img, 255, 255, 255),
-            'black' => imagecolorallocate($img, 0, 0, 0),
-        );
-        // отрисовка линий по X и проставление цифр в квадратах
-        for ($i = 0; $i < $x; $i++) {
-            $varX = $pixX * $i;
-            // Обрамление цифры (для темных карт)
-            if ($color['white']) {
-                imagefilledellipse($img, $varX + 12, 10, 20, 20, $color['white']);
-            }
-            // Цифра
-            imagestring($img, 2, $varX + 7, 5, $i, $color['black']);
-            // линия
-            imageline($img, $varX, 0, $varX, $y, $color['black']);
-        }
-        for ($i = 0; $i < $y; $i++) {
-            $varY = $pixY * $i;
-            if ($color['white']) {
-                imagefilledellipse($img, 10, $varY + 12, 20, 20, $color['white']);
-            }
-            imagestring($img, 2, 5, $varY + 7, $i, $color['black']);
-            imageline($img, 0, $varY, $x, $varY, $color['black']);
-        }
-        // Отрисовка точек на карте
-        foreach ($array['coords'] as $item) {
-            imagefilledellipse($img, $item['c_x'], $item['c_y'], 10, 10, $color['red']);
-        }
-
-        $saveFunctionImg($img, 'uploads/maps/' . $array['img'] . '_edit');
     }
 
     public function saveAction(Request $request, $id)
@@ -237,8 +147,13 @@ class MapController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository('AppMapBundle:Map')->find($id);
+
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Map entity.');
+        }
+        $coords = $em->getRepository('AppMapBundle:Coordinates')->findby(array('coords' => $entity));
+        foreach($coords as $coord) {
+            $em->remove($coord);
         }
         // Если пользователь не загружал свою картинку то скачиваем Я.Карту
         if (isset($request['yandex_image']) && $request['yandex_image']) {
@@ -248,8 +163,17 @@ class MapController extends Controller
         }
 
         // Если в процессе были изменены размеры сетки то обновялем
+        // помимо этого проверяем на валидность (проверка в ангуляре есть, поэтому не стал генерировать ошибку)
+        if($request['x'] < 2){$request['x'] = 2;}
+        if($request['x'] > 20){$request['x'] = 20;}
+        if($request['y'] < 2){$request['y'] = 2;}
+        if($request['y'] > 20){$request['y'] = 20;}
+        if($request['rad'] < 10){$request['rad'] = 10;}
+        if($request['rad'] > 100){$request['rad'] = 100;}
+
         $entity->setX($request['x']);
         $entity->setY($request['y']);
+        $entity->setRadius($request['rad']);
         if (!$entity->getImg()) {
             $entity = $em->getRepository('AppMapBundle:Map')->find($id);
             return $this->render('AppMapBundle:Map:showMap.html.twig', array('entity' => $entity, 'error' => 'Необходимо получить изображение'));
@@ -278,19 +202,52 @@ class MapController extends Controller
      */
     public function showAction($id)
     {
-        $breadcrumbs = $this->get('white_october_breadcrumbs');
-        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
-        $breadcrumbs->addItem('Панель управления', '');
-        $breadcrumbs->addItem('Пользователи', '');
-
         $em = $this->getDoctrine()->getManager();
-        $entity = $em->getRepository('AppMapBundle:Map')->find($id);
+        $entities = $em->createQueryBuilder()
+            ->select('rg.id, rg.radius, rg.name, rg.img, rg.x, rg.y, r.name as c_name, r.x as c_x, r.y as c_y')
+            ->from('AppMapBundle:Map', 'rg')
+            ->leftJoin('rg.coords_m', 'r')
+            ->where('rg.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
 
-        if (!$entity) {
+        if (!$entities) {
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
 
-        return $this->render('AppMapBundle:Map:showMap.html.twig', array('entity' => $entity, 'error' => false));
+        $firstEnt = $entities[0];
+        list($sizeX, $sizeY) = getimagesize('uploads/maps/' . $firstEnt['img']);
+
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
+        if(stristr($this->get('request')->server->get('HTTP_REFERER'), 'new')){
+            $breadcrumbs->addItem('Новое задание', $this->generateUrl('app_map_new'));
+        } else {
+            $breadcrumbs->addItem($firstEnt['name'], $this->generateUrl('app_map_view', array('id' => $firstEnt['id'])));
+        }
+        $breadcrumbs->addItem('Редактирование', '');
+
+        $array = array(
+            'id' => $firstEnt['id'],
+            'radius' => $firstEnt['radius'],
+            'name' => $firstEnt['name'],
+            'img' => $firstEnt['img'],
+            'x' => $firstEnt['x'],
+            'y' => $firstEnt['y'],
+            'size' => array(
+                'x' => $sizeX,
+                'y' => $sizeY,
+            ),
+            'coords' => []
+        );
+        foreach ($entities as $ent) {
+            if ($ent['c_name']) {
+                $array['coords'][] = $ent;
+            }
+        }
+
+        return $this->render('AppMapBundle:Map:showMap.html.twig', array('entity' => $array, 'error' => false));
     }
 
     /**
@@ -304,6 +261,12 @@ class MapController extends Controller
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Map entity.');
+        }
+
+        // находим все файлы кэша по маске и удаляем
+        $cacheFiles = glob('uploads/maps/cache/' . $entity->getImg() . '*');
+        foreach($cacheFiles as $cache){
+            unlink($cache);
         }
 
         // Удаляем карту и отредактированную карту для обьекта

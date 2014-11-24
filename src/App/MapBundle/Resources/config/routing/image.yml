@@ -5,3 +5,15 @@ app_img_index:
 app_grid_index:
     path:     /grid/{name}/{x}/{y}/
     defaults: { _controller: "AppMapBundle:Image:grid" }
+
+app_map_save_map:
+    path:     /{id}/save_map/{source}
+    defaults: { _controller: "AppMapBundle:Image:saveMap" }
+    requirements:
+        id:  \d+
+
+app_map_save_coords:
+    path:     /{id}/save_coord
+    defaults: { _controller: "AppMapBundle:Image:saveCoord" }
+    requirements:
+        id:  \d+

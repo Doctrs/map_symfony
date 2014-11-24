@@ -18,20 +18,6 @@ app_map_save:
     defaults: { _controller: "AppMapBundle:Map:save" }
     requirements: { _method: post }
 
-
-app_map_save_map:
-    path:     /{id}/save_map
-    defaults: { _controller: "AppMapBundle:Map:saveMap" }
-    requirements:
-        id:  \d+
-
-
-app_map_save_coords:
-    path:     /{id}/save_coord
-    defaults: { _controller: "AppMapBundle:Map:saveCoord" }
-    requirements:
-        id:  \d+
-
 app_map_view:
     path:     /{id}/view
     defaults: { _controller: "AppMapBundle:Map:view" }
