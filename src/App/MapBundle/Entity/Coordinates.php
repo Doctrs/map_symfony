@@ -20,6 +20,16 @@ class Coordinates
     private $name;
 
     /**
+     * @var integer
+     */
+    private $x;
+
+    /**
+     * @var integer
+     */
+    private $y;
+
+    /**
      * @var \App\MapBundle\Entity\Map
      */
     private $coords;
@@ -57,39 +67,6 @@ class Coordinates
     {
         return $this->name;
     }
-
-    /**
-     * Set coords
-     *
-     * @param \App\MapBundle\Entity\Map $coords
-     * @return Coordinates
-     */
-    public function setCoords(\App\MapBundle\Entity\Map $coords = null)
-    {
-        $this->coords = $coords;
-
-        return $this;
-    }
-
-    /**
-     * Get coords
-     *
-     * @return \App\MapBundle\Entity\Map 
-     */
-    public function getCoords()
-    {
-        return $this->coords;
-    }
-    /**
-     * @var integer
-     */
-    private $x;
-
-    /**
-     * @var integer
-     */
-    private $y;
-
 
     /**
      * Set x
@@ -137,7 +114,26 @@ class Coordinates
         return $this->y;
     }
 
-    public function __toString(){
-        return $this->name ? $this->name : '';
+    /**
+     * Set coords
+     *
+     * @param \App\MapBundle\Entity\Map $coords
+     * @return Coordinates
+     */
+    public function setCoords(\App\MapBundle\Entity\Map $coords = null)
+    {
+        $this->coords = $coords;
+
+        return $this;
+    }
+
+    /**
+     * Get coords
+     *
+     * @return \App\MapBundle\Entity\Map 
+     */
+    public function getCoords()
+    {
+        return $this->coords;
     }
 }

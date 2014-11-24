@@ -12,23 +12,22 @@ App\MapBundle\Entity\Map:
             length: 255
         img:
             type: text
-            nullable: true
         x:
             type: smallint
             length: 2
+            options:
+                default: 0
         y:
             type: smallint
             length: 2
+            options:
+                default: 0
+        radius:
+            type: smallint
+            length: 2
+            options:
+                default: 10
     oneToMany:
         coords_m:
             targetEntity: Coordinates
             mappedBy: coords
-    manyToOne:
-        maps:
-            type: integer
-            targetEntity: Task
-            inversedBy: tasks
-            joinColumn:
-                name: task_id
-                referencedColumnName: id
-                onDelete: CASCADE

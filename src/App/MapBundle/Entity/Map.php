@@ -9,8 +9,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Map
 {
-
-    public $file;
     /**
      * @var integer
      */
@@ -24,27 +22,32 @@ class Map
     /**
      * @var string
      */
+    private $file;
+
+    /**
+     * @var string
+     */
     private $img;
 
     /**
-     * @var tinyint
+     * @var integer
      */
     private $x;
 
     /**
-     * @var tinyint
+     * @var integer
      */
     private $y;
+
+    /**
+     * @var integer
+     */
+    private $radius;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
      */
     private $coords_m;
-
-    /**
-     * @var \App\MapBundle\Entity\Task
-     */
-    private $maps;
 
     /**
      * Constructor
@@ -113,7 +116,7 @@ class Map
     /**
      * Set x
      *
-     * @param \tinyint $x
+     * @param integer $x
      * @return Map
      */
     public function setX($x)
@@ -126,7 +129,7 @@ class Map
     /**
      * Get x
      *
-     * @return \tinyint 
+     * @return integer 
      */
     public function getX()
     {
@@ -136,7 +139,7 @@ class Map
     /**
      * Set y
      *
-     * @param \tinyint $y
+     * @param integer $y
      * @return Map
      */
     public function setY($y)
@@ -149,11 +152,34 @@ class Map
     /**
      * Get y
      *
-     * @return \tinyint 
+     * @return integer 
      */
     public function getY()
     {
         return $this->y;
+    }
+
+    /**
+     * Set radius
+     *
+     * @param integer $radius
+     * @return Map
+     */
+    public function setRadius($radius)
+    {
+        $this->radius = $radius;
+
+        return $this;
+    }
+
+    /**
+     * Get radius
+     *
+     * @return integer 
+     */
+    public function getRadius()
+    {
+        return $this->radius;
     }
 
     /**
@@ -187,61 +213,5 @@ class Map
     public function getCoordsM()
     {
         return $this->coords_m;
-    }
-
-    /**
-     * Set maps
-     *
-     * @param \App\MapBundle\Entity\Task $maps
-     * @return Map
-     */
-    public function setMaps(\App\MapBundle\Entity\Task $maps = null)
-    {
-        $this->maps = $maps;
-
-        return $this;
-    }
-
-    /**
-     * Get maps
-     *
-     * @return \App\MapBundle\Entity\Task 
-     */
-    public function getMaps()
-    {
-        return $this->maps;
-    }
-
-
-    public function __toString(){
-        return $this->name ? $this->name : '';
-    }
-    /**
-     * @var int
-     */
-    private $coords;
-
-
-    /**
-     * Set coords
-     *
-     * @param \int $coords
-     * @return Map
-     */
-    public function setCoords($coords)
-    {
-        $this->coords = $coords;
-
-        return $this;
-    }
-
-    /**
-     * Get coords
-     *
-     * @return \int 
-     */
-    public function getCoords()
-    {
-        return $this->coords;
     }
 }

@@ -22,7 +22,7 @@ class Coordinates
     /**
      * @var \App\MapBundle\Entity\Map
      */
-    private $maps;
+    private $coords;
 
 
     /**
@@ -59,26 +59,26 @@ class Coordinates
     }
 
     /**
-     * Set maps
+     * Set coords
      *
-     * @param \App\MapBundle\Entity\Map $maps
+     * @param \App\MapBundle\Entity\Map $coords
      * @return Coordinates
      */
-    public function setMaps(\App\MapBundle\Entity\Map $maps = null)
+    public function setCoords(\App\MapBundle\Entity\Map $coords = null)
     {
-        $this->maps = $maps;
+        $this->coords = $coords;
 
         return $this;
     }
 
     /**
-     * Get maps
+     * Get coords
      *
      * @return \App\MapBundle\Entity\Map 
      */
-    public function getMaps()
+    public function getCoords()
     {
-        return $this->maps;
+        return $this->coords;
     }
     /**
      * @var integer

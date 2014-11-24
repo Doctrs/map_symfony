@@ -10,10 +10,14 @@
     <link rel="stylesheet" href="{{ asset('static/css/main.css') }}" type="text/css" media="all">
     <link rel="stylesheet" href="{{ asset('static/css/map_edit.css') }}" type="text/css" media="all">
 <div ng-app="app" ng-controller="main" ng-init="
-    imw = 600; imh =400;
+    imw = 586; imh =381;
     sx = {{ entity.x }}; sy = {{ entity.y }};
     change(); toogleMap();
     ">
+    <img src='/app_dev.php/img/layout/1416772612/0/0/2/5/5.png'>
+    <img src='/app_dev.php/img/layout/1416772612/1/0/2/5/5.png'><br>
+    <img src='/app_dev.php/img/layout/1416772612/0/1/2/5/5.png'>
+    <img src='/app_dev.php/img/layout/1416772612/1/1/2/5/5.png'>
     <h3>Добавление координат</h3>
     <form method="post" action="{{ path('app_map_save', {'id': entity.id}) }}">
         <table class="record_properties">

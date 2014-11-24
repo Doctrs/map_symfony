@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Перевертыши{% endblock %}</title>
-    {% block stylesheets %}
-        <link rel="stylesheet" href="{{ asset('static/bootstrap/css/bootstrap.css') }}" type="text/css" media="all">
-    {% endblock %}
+    <title>Перевертыши</title>
+    <link rel="stylesheet" href="{{ asset('static/bootstrap/css/bootstrap.css') }}" type="text/css" media="all">
+    <link rel="stylesheet" href="{{ asset('static/css/index.css') }}" type="text/css" media="all">
+    <script src="{{ asset('http://code.jquery.com/jquery-1.11.1.min.js') }}"></script>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 </head>
 <body>
@@ -22,9 +22,10 @@
 </div>
 
 <div class="container">
+    {{ wo_render_breadcrumbs() }}
     {% block body %}{% endblock %}
 </div>
-<footer style="height:100px;">
+<footer>
 </footer>
 
 {% block javascripts %}

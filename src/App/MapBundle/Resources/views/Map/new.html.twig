@@ -5,11 +5,9 @@
     <link rel="stylesheet" href="{{ asset('static/css/map_create.css') }}" type="text/css" media="all">
 
     <h3>Создание новой карты</h3>
-    Можно загрузить фрагмент карты и отметить координаты на ней,<br>
-    или создать карту с помощью Я.Карт (поле "Изображение карты" должно быть пустым)<br><br>
     {{ form(form) }}
 
-        <a class="btn btn-danger" href="{{ path('app_task') }}">
+        <a class="btn btn-danger" href="{{ path('app_map_index') }}">
             Вернуться к списку
         </a>
 

@@ -1,14 +1,16 @@
+app_map_index:
+    path:     /
+    defaults: { _controller: "AppMapBundle:Map:index" }
+
 app_map_show:
-    path:     /{id}/show/{type}
+    path:     /{id}/edit
     defaults: { _controller: "AppMapBundle:Map:show" }
     requirements:
         id:  \d+
 
 app_map_new:
-    path:     /{id}/new
+    path:     /new
     defaults: { _controller: "AppMapBundle:Map:new" }
-    requirements:
-        id:  \d+
 
 
 app_map_save:

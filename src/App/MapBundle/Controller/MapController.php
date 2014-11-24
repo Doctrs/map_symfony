@@ -17,16 +17,44 @@ class MapController extends Controller
     /**
      * Типы изображений и функции для работы с ними
      */
-    private $validArrayType = array('image/gif' => array('create' => 'imagecreatefromgif', 'save' => 'imagepng'), 'image/jpeg' => array('create' => 'imagecreatefromjpeg', 'save' => 'imagejpeg'), 'image/png' => array('create' => 'imagecreatefrompng', 'save' => 'imagepng'),);
+    private $validArrayType = array(
+        'image/gif' => array(
+            'create' => 'imagecreatefromgif',
+            'save' => 'imagepng'
+        ),
+        'image/jpeg' => array(
+            'create' => 'imagecreatefromjpeg',
+            'save' => 'imagejpeg'
+        ),
+        'image/png' => array(
+            'create' => 'imagecreatefrompng',
+            'save' => 'imagepng'
+        ),
+    );
 
     /**
      * Creates a new Map entity.
      *
      */
+
+    public function indexAction(){
+        $em = $this->getDoctrine()->getManager();
+        $entities = $em->getRepository('AppMapBundle:Map')->findAll();
+
+        return $this->render('AppMapBundle:Map:index.html.twig',
+            array(
+                'entities' => $entities
+            ));
+    }
+
+
     public function createAction(Request $request)
     {
         $entity = new Map();
         $em = $this->getDoctrine()->getManager();
+        $entity->setX(0);
+        $entity->setY(0);
+        $entity->setRadius(10);
 
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
@@ -34,23 +62,20 @@ class MapController extends Controller
         if (!$form->isValid()) {
             return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
         }
-        // если картинки нет то переадресация на tpl с картой
-        $type = 'map';
-        if ($entity->getImg()) {
-            $type = 'img';
-            $imgName = (new \DateTime())->getTimestamp();
-            $entity->getImg()->move('uploads/maps', $imgName);
-            // Если картинка не соответсвует валидному типу то ошибка
-            if (!isset($this->validArrayType[mime_content_type('uploads/maps/' . $imgName)])) {
-                $form->get('img')->addError(new \Symfony\Component\Form\FormError('Необходимо изображение'));
-                return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
-            }
-            $entity->setImg($imgName);
+        $imgName = (new \DateTime())->getTimestamp();
+        $entity->getImg()->move('uploads/maps', $imgName);
+        // Если картинка не соответсвует валидному типу то ошибка
+        if (!isset($this->validArrayType[mime_content_type('uploads/maps/' . $imgName)])) {
+            $form->get('img')->addError(new \Symfony\Component\Form\FormError('Необходимо изображение'));
+            return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
         }
+        $entity->setImg($imgName);
         $em->persist($entity);
         $em->flush();
 
-        return $this->redirect($this->generateUrl('app_map_show', array('id' => $entity->getId(), 'type' => $type)));
+        return $this->redirect($this->generateUrl('app_map_show',
+            array('id' => $entity->getId())
+        ));
     }
 
     /**
@@ -60,10 +85,12 @@ class MapController extends Controller
      *
      * @return \Symfony\Component\Form\Form The form
      */
-    private function createCreateForm(Map $entity, $id = 0)
+    private function createCreateForm(Map $entity)
     {
         $type = new MapType();
-        $form = $this->createForm($type, $entity, array('action' => $this->generateUrl('app_map_create'), 'method' => 'POST',));
+        $form = $this->createForm($type, $entity,
+            array('action' => $this->generateUrl('app_map_create'), 'method' => 'POST',)
+        );
 
         $form->add('submit', 'submit', array('attr' => array('class' => 'btn btn-success'), 'label' => 'Создать'));
 
@@ -125,12 +152,11 @@ class MapController extends Controller
      * Displays a form to create a new Map entity.
      *
      */
-    public function newAction($id)
+    public function newAction()
     {
         $entity = new Map();
         $em = $this->getDoctrine()->getManager();
-        $entity->setMaps($em->merge($em->getRepository('AppMapBundle:Task')->find($id)));
-        $form = $this->createCreateForm($entity, $id);
+        $form = $this->createCreateForm($entity);
 
         return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
     }
@@ -172,7 +198,11 @@ class MapController extends Controller
         $saveFunctionImg = $this->validArrayType[$type]['save'];
         $img = $createFunctionImg('uploads/maps/' . $array['img']);
 
-        $color = array('red' => imagecolorallocate($img, 255, 0, 0), 'white' => imagecolorallocate($img, 255, 255, 255), 'black' => imagecolorallocate($img, 0, 0, 0),);
+        $color = array(
+            'red' => imagecolorallocate($img, 255, 0, 0),
+            'white' => imagecolorallocate($img, 255, 255, 255),
+            'black' => imagecolorallocate($img, 0, 0, 0),
+        );
         // отрисовка линий по X и проставление цифр в квадратах
         for ($i = 0; $i < $x; $i++) {
             $varX = $pixX * $i;
@@ -246,8 +276,13 @@ class MapController extends Controller
      * Finds and displays a Map entity.
      *
      */
-    public function showAction($id, $type)
+    public function showAction($id)
     {
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
+        $breadcrumbs->addItem('Панель управления', '');
+        $breadcrumbs->addItem('Пользователи', '');
+
         $em = $this->getDoctrine()->getManager();
         $entity = $em->getRepository('AppMapBundle:Map')->find($id);
 
@@ -255,9 +290,7 @@ class MapController extends Controller
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
 
-        $templateName = ($type == 'map' ? 'showMap.html.twig' : 'show.html.twig');
-
-        return $this->render('AppMapBundle:Map:' . $templateName, array('entity' => $entity, 'error' => false));
+        return $this->render('AppMapBundle:Map:showMap.html.twig', array('entity' => $entity, 'error' => false));
     }
 
     /**
@@ -286,6 +319,6 @@ class MapController extends Controller
         $em->remove($entity);
         $em->flush();
 
-        return $this->redirect($this->generateUrl('app_task'));
+        return $this->redirect($this->generateUrl('app_map_index'));
     }
 }

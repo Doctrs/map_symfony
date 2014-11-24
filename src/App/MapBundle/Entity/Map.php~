@@ -228,7 +228,7 @@ class Map
      * @param \int $coords
      * @return Map
      */
-    public function setCoords(\int $coords)
+    public function setCoords($coords)
     {
         $this->coords = $coords;
 

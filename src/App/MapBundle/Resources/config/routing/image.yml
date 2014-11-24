@@ -1,0 +1,7 @@
+app_img_index:
+    path:     /layout/{name}/{x}/{y}/{z}/{gridX}/{gridY}.png
+    defaults: { _controller: "AppMapBundle:Image:layout" }
+
+app_grid_index:
+    path:     /grid/{name}/{x}/{y}/
+    defaults: { _controller: "AppMapBundle:Image:grid" }

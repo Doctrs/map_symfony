@@ -16,10 +16,7 @@ class MapType extends AbstractType
     {
         $builder
             ->add('name', null, ['label' => 'Название карты:'])
-            ->add('img', 'file', ['label' => 'Изображение карты:', 'required' => false])
-            ->add('x', null, ['label' => 'Квадратов по X:'])
-            ->add('y', null, ['label' => 'Квадратов по Y:'])
-            ->add('maps', 'entity', ['label' => 'Для задания:', 'class' => 'AppMapBundle:Task', 'property_path' => 'maps'])
+            ->add('img', 'file', ['label' => 'Изображение карты:'])
         ;
     }
 
