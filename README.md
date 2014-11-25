@@ -75,7 +75,7 @@
 
 чистка кэша
 
-    php app/console cache:clear --env=dev && app/console cache:clear --env=prod
+    php app/console cache:clear --env=prod
 
 Добавляем в hosts строчку
 
