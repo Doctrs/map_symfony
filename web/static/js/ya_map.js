@@ -57,7 +57,7 @@ var map = {
         var scope = angular.element('[ng-controller="main"]').scope();
         this.myMap.events.add('click', function (e) {
             // получаем размер КП с учетом зума
-            self.radius.zoom = self.radius.main * Math.pow(2, self.myMap.getZoom()-1);
+            self.updateZoom();
             // так как карты лежат в другой плоскости (повернуты на 90 градусов для удобства расчета)
             // Левый верхний угол лежит в точке 0, 0 и находится она в плоскости I
             // (все ее координаты положительные) необходимо поменять местами x и y
@@ -66,6 +66,7 @@ var map = {
         });
         // Если есть координаты (редактировнание существующей карты)
         // добавялем их
+        this.updateZoom();
         for(var i in COORDS){
             this.addPlacemark(COORDS[i]);
         }
@@ -73,6 +74,15 @@ var map = {
         setTimeout(function(){
             scope.$apply();
         }, 150);
+    },
+    updateZoom: function(){
+        this.radius.zoom =
+            this.radius.main *
+            Math.pow(2, this.myMap.getZoom()-1) *
+                // так как размер измеряется в пикселях а не в координатах карты
+                // приравниваем огромные карты к маленьким
+            1000 / Math.max(this.coordinates[0], this.coordinates[1])
+        ;
     },
     // Добавляем КП на карту и в коллекцию
     addPlacemark: function(coords){
@@ -93,7 +103,7 @@ var map = {
     // обновялем радиусы КП
     // необходимо при изменении радиуса, а также при масштабировании
     updateRadius: function(){
-        this.radius.zoom = this.radius.main * Math.pow(2, this.myMap.getZoom()-1);
+        this.updateZoom();
         for(var i in this.placeMarks) {
             this.placeMarks[i].object.options.set('iconImageSize', [this.radius.zoom, this.radius.zoom]);
             this.placeMarks[i].object.options.set('iconImageOffset', [-(this.radius.zoom / 2), -(this.radius.zoom / 2)]);

@@ -8,6 +8,13 @@ services:
         arguments:
             container: "@service_container"
 
+    circle_service:
+        class: App\MapBundle\Service\CircleService
+
+    db_service:
+        class: App\MapBundle\Service\MapDbService
+        arguments: [@doctrine.orm.entity_manager]
+
 framework:
     #esi:             ~
     #translator:      { fallback: "%locale%" }

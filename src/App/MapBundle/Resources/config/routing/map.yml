@@ -8,6 +8,12 @@ app_map_show:
     requirements:
         id:  \d+
 
+app_map_kp_map:
+    path:     /{id}/getCoords
+    defaults: { _controller: "AppMapBundle:Map:getCoordinates" }
+    requirements:
+        id:  \d+
+
 app_map_new:
     path:     /new
     defaults: { _controller: "AppMapBundle:Map:new" }

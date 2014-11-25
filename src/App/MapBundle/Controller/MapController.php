@@ -32,9 +32,51 @@ class MapController extends Controller
             ));
     }
 
+    public function getCoordinatesAction($id)
+    {
+        $entity = $this->get('db_service')->getCoordMaps($id);
+
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
+        $breadcrumbs->addItem($entity['name'], $this->generateUrl('app_map_view', array('id' => $entity['id'])));
+        $breadcrumbs->addItem('Точки на карте', '');
+
+        $validTypes = $this->get('image_controller')->getValidTypes();
+        $type = mime_content_type('uploads/maps/' . $entity['img'] . '_edit_' . $entity['hash']);
+        $createFunctionImg = $validTypes[$type]['create'];
+
+        $image = $createFunctionImg('uploads/maps/' . $entity['img'] . '_edit_' . $entity['hash']);
+        // высчитываем окружность и добавялем немного чтобы красный круг вошел
+        $entity['radius'] += 50;
+
+        $circleCrop = $this->get('circle_service');
+        foreach($entity['coords'] as &$coord){
+
+            // проверяем по хэшу картику в кэшэ
+            $coord['hash'] = md5(json_encode($coord));
+            if(file_exists('uploads/maps/coords/' . $entity['img'] . '_' . $coord['hash'])){
+                continue;
+            }
+            // вырезаем круг
+            $circleCrop->setParams($image,
+                $coord['c_x'] - $entity['radius']/2,
+                $coord['c_y'] - $entity['radius']/2,
+                $entity['radius'], $entity['radius']);
+            $circleCrop->crop()->display('uploads/maps/coords/' . $entity['img'] . '_' . $coord['hash']);
+            $circleCrop->delete();
+        }unset($coord);
+
+        return $this->render('AppMapBundle:Map:showCoord.html.twig',
+            array('entity' => $entity)
+        );
+    }
 
     public function createAction(Request $request)
     {
+        $breadcrumbs = $this->get('white_october_breadcrumbs');
+        $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
+        $breadcrumbs->addItem('Новое задание', '');
+
         $entity = new Map();
         $em = $this->getDoctrine()->getManager();
         // Задаем занчения по умолчанию
@@ -102,43 +144,18 @@ class MapController extends Controller
 
     public function viewAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
-        $entities = $em->createQueryBuilder()
-            ->select('rg.id, rg.radius, rg.name, rg.img, rg.x, rg.y, r.name as c_name, r.x as c_x, r.y as c_y')
-            ->from('AppMapBundle:Map', 'rg')
-            ->leftJoin('rg.coords_m', 'r')
-            ->where('rg.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getResult();
+        // модель для рабоыт с БД
+        $entity = $this->get('db_service')->getCoordMaps($id);
 
-        if (!$entities) {
-            throw $this->createNotFoundException('Unable to find Map entity.');
-        }
-        $firstEnt = $entities[0];
-
+        // хлебные крошки
         $breadcrumbs = $this->get('white_october_breadcrumbs');
         $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
-        $breadcrumbs->addItem($firstEnt['name'], '');
+        $breadcrumbs->addItem($entity['name'], '');
 
-        $array = array(
-            'id' => $firstEnt['id'],
-            'name' => $firstEnt['name'],
-            'img' => $firstEnt['img'],
-            'x' => $firstEnt['x'],
-            'y' => $firstEnt['y'],
-            'radius' => $firstEnt['radius'],
-            'coords' => []
-        );
-        foreach ($entities as $ent) {
-            if ($ent['c_name']) {
-                $array['coords'][] = $ent;
-            }
-        }
         // рисуем на картинке сетку и координаты
-        $this->get('image_controller')->getImage($array);
+        $this->get('image_controller')->getImage($entity);
 
-        return $this->render('AppMapBundle:Map:view.html.twig', array('entity' => $array,));
+        return $this->render('AppMapBundle:Map:view.html.twig', array('entity' => $entity));
     }
 
     public function saveAction(Request $request, $id)
@@ -176,7 +193,12 @@ class MapController extends Controller
         $entity->setRadius($request['rad']);
         if (!$entity->getImg()) {
             $entity = $em->getRepository('AppMapBundle:Map')->find($id);
-            return $this->render('AppMapBundle:Map:showMap.html.twig', array('entity' => $entity, 'error' => 'Необходимо получить изображение'));
+            return $this->render('AppMapBundle:Map:show.html.twig',
+                array(
+                    'entity' => $entity,
+                    'error' => 'Необходимо получить изображение'
+                )
+            );
         }
         $em->persist($entity);
 
@@ -202,52 +224,23 @@ class MapController extends Controller
      */
     public function showAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
-        $entities = $em->createQueryBuilder()
-            ->select('rg.id, rg.radius, rg.name, rg.img, rg.x, rg.y, r.name as c_name, r.x as c_x, r.y as c_y')
-            ->from('AppMapBundle:Map', 'rg')
-            ->leftJoin('rg.coords_m', 'r')
-            ->where('rg.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getResult();
-
-        if (!$entities) {
-            throw $this->createNotFoundException('Unable to find Map entity.');
-        }
-
-        $firstEnt = $entities[0];
-        list($sizeX, $sizeY) = getimagesize('uploads/maps/' . $firstEnt['img']);
+        $entity = $this->get('db_service')->getCoordMaps($id);
+        list($sizeX, $sizeY) = getimagesize('uploads/maps/' . $entity['img']);
+        $entity['size'] = array(
+            'x' => $sizeX,
+            'y' => $sizeY
+        );
 
         $breadcrumbs = $this->get('white_october_breadcrumbs');
         $breadcrumbs->addItem('Главная', $this->generateUrl('app_map_index'));
         if(stristr($this->get('request')->server->get('HTTP_REFERER'), 'new')){
             $breadcrumbs->addItem('Новое задание', $this->generateUrl('app_map_new'));
         } else {
-            $breadcrumbs->addItem($firstEnt['name'], $this->generateUrl('app_map_view', array('id' => $firstEnt['id'])));
+            $breadcrumbs->addItem($entity['name'], $this->generateUrl('app_map_view', array('id' => $entity['id'])));
         }
         $breadcrumbs->addItem('Редактирование', '');
 
-        $array = array(
-            'id' => $firstEnt['id'],
-            'radius' => $firstEnt['radius'],
-            'name' => $firstEnt['name'],
-            'img' => $firstEnt['img'],
-            'x' => $firstEnt['x'],
-            'y' => $firstEnt['y'],
-            'size' => array(
-                'x' => $sizeX,
-                'y' => $sizeY,
-            ),
-            'coords' => []
-        );
-        foreach ($entities as $ent) {
-            if ($ent['c_name']) {
-                $array['coords'][] = $ent;
-            }
-        }
-
-        return $this->render('AppMapBundle:Map:showMap.html.twig', array('entity' => $array, 'error' => false));
+        return $this->render('AppMapBundle:Map:show.html.twig', array('entity' => $entity, 'error' => false));
     }
 
     /**
@@ -271,12 +264,16 @@ class MapController extends Controller
 
         // Удаляем карту и отредактированную карту для обьекта
         if ($entity->getImg()) {
-            if (file_exists('uploads/maps/' . $entity->getImg())) {
-                unlink('uploads/maps/' . $entity->getImg());
+            // удаляем все картинки в том числе и закэшированные
+            $cacheFiles = glob('uploads/maps/' . $entity->getImg() . '*');
+            foreach($cacheFiles as $cache){
+                unlink($cache);
             }
-            if (file_exists('uploads/maps/' . $entity->getImg() . '_edit')) {
-                unlink('uploads/maps/' . $entity->getImg() . '_edit');
-            }
+        }
+        // Удаляем закжшированные точки координат
+        $coordinateCacheFiles = glob('uploads/maps/coords/' . $entity->getImg() . '*');
+        foreach($coordinateCacheFiles as $cache){
+            unlink($cache);
         }
 
         $em->remove($entity);

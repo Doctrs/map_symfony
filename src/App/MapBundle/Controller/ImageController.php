@@ -36,6 +36,11 @@ class ImageController extends Controller
      */
     public function getImage($array)
     {
+        // функции отрисовки текста слишком тяжелые поэтому кэшируем все это дело
+        if(file_exists('uploads/maps/' . $array['img'] . '_edit_' . $array['hash'])){
+            return;
+        }
+
         list($x, $y) = getimagesize('uploads/maps/' . $array['img']);
 
         // определение расстояния между линиями
@@ -91,6 +96,7 @@ class ImageController extends Controller
         }
         // Отрисовка точек на карте
         imagesetthickness($img, min(9, $lineSize));
+        $array['radius'] *= 1000 / max($x, $y);
         foreach ($array['coords'] as $item) {
             imagearc(
                 $img,
@@ -100,7 +106,7 @@ class ImageController extends Controller
                 $color['red']);
         }
 
-        $saveFunctionImg($img, 'uploads/maps/' . $array['img'] . '_edit');
+        $saveFunctionImg($img, 'uploads/maps/' . $array['img'] . '_edit_' . $array['hash']);
     }
 
     /**
@@ -154,7 +160,7 @@ class ImageController extends Controller
                 $firstX = 0;
                 // если первый квадрат на этой оси, то первое вхождение - 0
                 // если нет то находим количество линий до этого квадрата
-                // и высчитываем линию в квадрате
+                // и высчитываем линию в данном квадрате
                 if ($x != 0) {
                     $numberX = ceil($size * $x / $gridSize[0]);
                     $firstX = $gridSize[0] * $numberX - $size * $x;
@@ -201,19 +207,18 @@ class ImageController extends Controller
 
     public function saveMapAction($id, $source)
     {
-        $em = $this->getDoctrine()->getManager();
-        $entity = $em->getRepository('AppMapBundle:Map')->find($id);
+        $entity = $this->get('db_service')->getCoordMaps($id);
 
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
         // Отдаем отредактированную картинку (_edit)
-        $filename = 'uploads/maps/' . $entity->getImg() . (!$source ? '_edit' : '');
+        $filename = 'uploads/maps/' . $entity['img'] . (!$source ? '_edit_' . $entity['hash'] : '');
 
         $response = new \Symfony\Component\HttpFoundation\Response();
         $response->headers->set('Cache-Control', 'private');
         $response->headers->set('Content-type', mime_content_type($filename));
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($entity->getImg()) . '";');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($entity['img']) . '";');
         $response->headers->set('Content-length', filesize($filename));
         $response->sendHeaders();
 

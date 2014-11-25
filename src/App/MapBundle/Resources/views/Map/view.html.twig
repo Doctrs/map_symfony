@@ -9,7 +9,7 @@
                 <tr>
                     <td valign="top" rowspan="2">
                         <div id="main_el">
-                            <img src="/uploads/maps/{{ entity.img }}_edit" width="600px;" />
+                            <img src="/uploads/maps/{{ entity.img }}_edit_{{ entity.hash }}" width="600px;" />
                         </div>
                     </td>
                     <td valign="top">
@@ -17,8 +17,16 @@
                         <br />
                         <a target="_blank" href="{{ path('app_map_save_map', {'id': entity.id, 'source': 0}) }}" class="btn btn-success">Скачать изображение карты</a>
                         <br />
-                        <a target="_blank" href="{{ path('app_map_save_coords', {'id': entity.id}) }}" class="btn btn-success">Скачать список координат</a>
-                        <br /><br />
+                        {% if(entity.coords|length) %}
+                            <a href="{{ path('app_map_kp_map', {'id': entity.id}) }}" class="btn btn-success">Отдельные координаты точек</a>
+                            <br />
+                            <a target="_blank" href="{{ path('app_map_save_coords', {'id': entity.id}) }}" class="btn btn-success">Скачать список координат</a>
+                            <br />
+                        {% endif %}
+                        <a href="{{ path('app_map_show', {'id': entity.id}) }}" class="btn btn-warning">Редактировать карту</a>
+                        <br />
+                        <a href="{{ path('app_map_index') }}" class="btn btn-danger">Вернуться к списку</a>
+                        <br /><br /><br />
                         {% if(entity.coords|length) %}
                         <table class="tab_coords">
                             <tr>
@@ -37,9 +45,6 @@
                         {% else %}
                             На карту не насены КП
                         {% endif %}
-                        <br /><br />
-                        <a href="{{ path('app_map_show', {'id': entity.id}) }}" class="btn btn-warning">Редактировать карту</a><br>
-                        <a href="{{ path('app_map_index') }}" class="btn btn-danger">Вернуться к списку</a>
                     </td>
                 </tr>
                 </tbody>

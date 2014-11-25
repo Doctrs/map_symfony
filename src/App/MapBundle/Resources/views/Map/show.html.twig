@@ -1,44 +1,93 @@
 {% extends '::base.html.twig' %}
 
 {% block body -%}
+    <script src="{{ asset('https://code.angularjs.org/1.3.3/angular.min.js') }}"></script>
+    <script src="{{ asset('http://code.jquery.com/jquery-1.11.1.min.js') }}"></script>
+    <script src="{{ asset('/static/js/ng_map.js') }}"></script>
+    <script src="{{ asset('/static/js/ya_map.js') }}"></script>
+    <script src="{{ asset('http://api-maps.yandex.ru/2.1/?lang=ru_RU&ns=&onload=startMap') }}"></script>
     <link rel="stylesheet" href="{{ asset('static/css/main.css') }}" type="text/css" media="all">
     <link rel="stylesheet" href="{{ asset('static/css/map_edit.css') }}" type="text/css" media="all">
+
+    <script>
+        var COORDS = [
+            {% for coord in entity.coords %}
+            [
+                {{ coord.c_x }},
+                {{ coord.c_y }}
+            ]
+            {% if(loop.index) %},{% endif %}
+            {% endfor %}
+        ];
+        var RADIUS = {{ entity.radius }};
+        var MAP_NAME = '{{ entity.img }}';
+        var SIZE = {
+            'x': {{ entity.size.x }},
+            'y': {{ entity.size.y }}
+        }
+        var GRID = {
+            'x': {{ entity.x }},
+            'y': {{ entity.y }}
+        }
+    </script>
+
+
 <div ng-app="app" ng-controller="main">
-    <h3>Добавление координат</h3>
+    <h3>{{ entity.name }}</h3>
     <form method="post" action="{{ path('app_map_save', {'id': entity.id}) }}">
-    <table class="record_properties">
-        <tbody>
+        <table width="100%" class="record_properties">
+            <tbody>
+            {% if(error) %}
             <tr>
-                <th>Название:</th>
-                <td>{{ entity.name }}</td>
+                <th style="color:red">Ошибка:</th>
+                <td style="color:red">{{ error }}</td>
             </tr>
-            <tr>
-                <th>Карта:</th>
-                <td>
-                    <div id="main_el" ng-click="click($event)" >
-                        <img style="border: 1px solid black;" style-image ng-src="/uploads/maps/{{ entity.img }}" />
-                    </div>
-                    <table class="tab_coords">
-                        <tr><td>Номер</td><td>Координаты</td><td>Квадрат</td></tr>
-                        <tr ng-repeat="coord in coordinates track by $index">
-                            <td>Точка {[$index+1]}</td>
-                            <td>x: {[coord.x]}, y: {[coord.y]}</td>
-                            <td>{[coord.name]}</td>
-                            <td><a ng-click="delete($index)">Удалить</a></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <th>Квадратов по X:</th>
-                <td><input ng-model="sx" name="x" type="number" ng-init="sx = {{ entity.x }}" /></td>
-            </tr>
-            <tr>
-                <th>Квадратов по Y:</th>
-                <td><input ng-model="sy" name="y" type="number" ng-init="sy = {{ entity.y }}" /></td>
-            </tr>
-        </tbody>
-    </table>
+            {% endif %}
+                <tr>
+                    <td valign="top" rowspan="2">
+                        <div id="main_el" ng-click="click($event)">
+                            <div id="myMap"></div>
+                        </div>
+                    </td>
+                    <td valign="top">Сетка по X:
+                        <input min="2" style="width:50px;" max="20" ng-model="sx" name="x" type="number" />
+                        Сетка по Y:
+                        <input min="2" style="width:50px;" max="20" ng-model="sy" name="y" type="number" /><br/>
+                        Размер КП:
+                        <input min="10" style="width:50px;" max="100" ng-model="rad" name="rad" type="number" />
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top">
+                        <table class="tab_coords" ng-show="coordinates.length">
+                            <tr>
+                                <td class="s2">Номер</td>
+                                <td class="s2">Координаты</td>
+                                <td class="s2">Квадрат</td>
+                                <td class="s2"></td>
+                            </tr>
+                            <tr
+                                    ng-mouseover="alocate($index, true)"
+                                    ng-mouseout="alocate($index, false)"
+                                    ng-repeat="coord in coordinates track by $index">
+
+
+                                <input type="hidden" name="coordx[{[$index]}]" value="{[coord.coords[0]]}">
+                                <input type="hidden" name="coordy[{[$index]}]" value="{[coord.coords[1]]}">
+                                <input type="hidden" name="coordname[{[$index]}]" value="{[coord.name]}">
+
+                                <td class="s{[$index%2 ? '2' : '1']}">Точка {[$index+1]}</td>
+                                <td class="s{[$index%2 ? '2' : '1']}">x: {[coord.coords[0] ]}, y: {[ coord.coords[1] ]}</td>
+                                <td class="s{[$index%2 ? '2' : '1']}">{[coord.name]}</td>
+                                <td class="s{[$index%2 ? '2' : '1']}"><a ng-click="delete($index)">Удалить</a></td>
+
+                            </tr>
+                        </table>
+                        <div ng-show="!coordinates.length">На карту не нанесены КП</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <input type="submit" class="btn btn-success" value="Сохранить"/>
         </form>
 </div>

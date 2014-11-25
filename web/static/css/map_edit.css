@@ -7,6 +7,10 @@
 }
 
 
+.record_properties a.btn{
+    width:300px;
+}
+
 .record_properties th{
     text-align: right;
     padding-right:10px;
