@@ -81,8 +81,7 @@
 
     127.0.0.1       maps.local
 
-Все готово - по адресу <a href="http://maps.local" target="_blank">maps.local</a> у нас есть рабочее приложение<br>
-debug находится здесь - <a href="http://maps.local/app_dev.php" target="_blank">maps.local/app_dev.php</a>
+Все готово - по адресу <a href="http://maps.local" target="_blank">maps.local</a> у нас есть рабочее приложение
 
 И напоследок - конфиг апача
 
