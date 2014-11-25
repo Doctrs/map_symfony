@@ -212,13 +212,14 @@ class ImageController extends Controller
         if (!$entity) {
             throw $this->createNotFoundException('Unable to find Map entity.');
         }
-        // Отдаем отредактированную картинку (_edit)
+        // Отдаем отредактированную картинку (_edit_hash или стандартную)
         $filename = 'uploads/maps/' . $entity['img'] . (!$source ? '_edit_' . $entity['hash'] : '');
 
         $response = new \Symfony\Component\HttpFoundation\Response();
         $response->headers->set('Cache-Control', 'private');
         $response->headers->set('Content-type', mime_content_type($filename));
-        $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($entity['img']) . '";');
+        $response->headers->set('Content-Disposition',
+            'attachment; filename="' . $entity['name'] . ' (' . $entity['img'] . ')";');
         $response->headers->set('Content-length', filesize($filename));
         $response->sendHeaders();
 

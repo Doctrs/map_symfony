@@ -79,10 +79,6 @@ class MapController extends Controller
 
         $entity = new Map();
         $em = $this->getDoctrine()->getManager();
-        // Задаем занчения по умолчанию
-        $entity->setX(2);
-        $entity->setY(2);
-        $entity->setRadius(10);
 
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
@@ -96,9 +92,28 @@ class MapController extends Controller
         $validTypes = $this->get('image_controller')->getValidTypes();
         if (!isset($validTypes[mime_content_type('uploads/maps/' . $imgName)])) {
             $form->get('img')->addError(new \Symfony\Component\Form\FormError('Необходимо изображение'));
-            return $this->render('AppMapBundle:Map:new.html.twig', array('entity' => $entity, 'form' => $form->createView(),));
+            return $this->render('AppMapBundle:Map:new.html.twig', array(
+                'entity' => $entity,
+                'form' => $form->createView(),
+            ));
         }
         $entity->setImg($imgName);
+
+        // присваиваем стандартный радиус в зависимости от ширины изображения
+        list($x, $y) = getimagesize('uploads/maps/' . $imgName);
+        $radius = max($x, $y) / 20;
+        if($radius > 100){
+            $radius = 100;
+        }
+        if($radius < 10){
+            $radius = 10;
+        }
+
+        // Задаем занчения по умолчанию
+        $entity->setX(2);
+        $entity->setY(2);
+        $entity->setRadius($radius);
+
         $em->persist($entity);
         $em->flush();
 
@@ -257,23 +272,24 @@ class MapController extends Controller
         }
 
         // находим все файлы кэша по маске и удаляем
-        $cacheFiles = glob('uploads/maps/cache/' . $entity->getImg() . '*');
-        foreach($cacheFiles as $cache){
-            unlink($cache);
-        }
 
         // Удаляем карту и отредактированную карту для обьекта
         if ($entity->getImg()) {
-            // удаляем все картинки в том числе и закэшированные
-            $cacheFiles = glob('uploads/maps/' . $entity->getImg() . '*');
-            foreach($cacheFiles as $cache){
-                unlink($cache);
+            // набор масок по которым провоидтся удаление
+            $cacheArr = array(
+                // файлы карты и отредактированной карты
+                'uploads/maps/' . $entity->getImg() . '*',
+                // файлы Я.Карт
+                'uploads/maps/cache/' . $entity->getImg() . '*',
+                // файлы координат
+                'uploads/maps/coords/' . $entity->getImg() . '*'
+            );
+            foreach($cacheArr as $cachePath) {
+                $cacheFiles = glob($cachePath);
+                foreach ($cacheFiles as $cache) {
+                    unlink($cache);
+                }
             }
-        }
-        // Удаляем закжшированные точки координат
-        $coordinateCacheFiles = glob('uploads/maps/coords/' . $entity->getImg() . '*');
-        foreach($coordinateCacheFiles as $cache){
-            unlink($cache);
         }
 
         $em->remove($entity);
