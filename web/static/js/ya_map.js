@@ -128,7 +128,7 @@ var map = {
         }
         this.myMap.layers.removeAll();
         this.myMap.layers.add(new this.ymaps.Layer(
-            '/app_dev.php/img/layout/' + this.map_name + '/%x/%y/%z/'+this.grid[0]+'/'+this.grid[1]+'.png'
+            '/img/layout/' + this.map_name + '/%x/%y/%z/'+this.grid[0]+'/'+this.grid[1]+'.png'
             ,{
                 notFoundTile: '/static/img/none.png'
             }
