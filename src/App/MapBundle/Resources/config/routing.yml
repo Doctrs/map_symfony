@@ -1,7 +1,0 @@
-AppTaskBundle:
-    resource: "@AppMapBundle/Resources/config/routing/map.yml"
-    prefix:   /
-
-AppImgBundle:
-    resource: "@AppMapBundle/Resources/config/routing/image.yml"
-    prefix:   /img
